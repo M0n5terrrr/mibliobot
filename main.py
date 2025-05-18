@@ -1,23 +1,9 @@
 import telebot
 from telebot import types
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-import time
-import os
-import sys
-from keep_alive import keep_alive
-keep_alive()
 
-# Load Bot Token from environment variable
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-if not BOT_TOKEN:
-    print("Error: BOT_TOKEN environment variable not set!")
-    sys.exit(1)
-
-# Load Target Chat ID from environment variable
-TARGET_CHAT_ID = os.environ.get('TARGET_CHAT_ID')
-if not TARGET_CHAT_ID:
-    print("Error: TARGET_CHAT_ID environment variable not set!")
-    sys.exit(1)
+# Bot Token (Replace with your actual token)
+BOT_TOKEN = 'YOUR_BOT_TOKEN'  # Replace with your actual bot token
 
 # Initialize the bot
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -201,6 +187,7 @@ def process_price(message):
 def process_confirmation(message):
     """Handles the confirmation and forwards the message."""
     if message.text == 'Confirm':
+        TARGET_CHAT_ID = '@YOUR_TARGET_CHANNEL_USERNAME'  # Replace with your actual chat ID
         try:
             book_info_message = f"""
             ****
@@ -241,11 +228,6 @@ def process_confirmation(message):
         bot.send_message(message.chat.id, "Invalid input. Please use the buttons.")
 
 
-# Start polling for updates with keep-alive
+# Start polling for updates
 if __name__ == '__main__':
-    while True:
-        try:
-            bot.polling(none_stop=True, timeout=0)
-        except Exception as e:
-            print(f"Polling error: {e}")
-            time.sleep(0)  # Wait for a bit before retrying
+    bot.infinity_polling()
