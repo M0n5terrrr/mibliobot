@@ -1,12 +1,21 @@
 import telebot
 from telebot import types
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
-
+import os
 from keep_alive import keep_alive
 keep_alive()
 
-# Bot Token (Replace with your actual token)
-BOT_TOKEN = 'YOUR_BOT_TOKEN'  # Replace with your actual bot token
+# Load Bot Token from environment variable
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+if not BOT_TOKEN:
+    print("Error: BOT_TOKEN environment variable not set!")
+    exit()
+
+# Load Target Chat ID from environment variable
+TARGET_CHAT_ID = os.environ.get('TARGET_CHAT_ID')
+if not TARGET_CHAT_ID:
+    print("Error: TARGET_CHAT_ID environment variable not set!")
+    exit()
 
 # Initialize the bot
 bot = telebot.TeleBot(BOT_TOKEN)
@@ -150,87 +159,4 @@ def process_star_rating(message):
 def process_location(message):
     """Handles the location input."""
     book_data['location'] = message.text
-    bot.send_message(message.chat.id, "Enter the selling price (in ₹):")
-    bot.register_next_step_handler(message, process_price)
-
-
-# --- Price ---
-def process_price(message):
-    """Handles the selling price input and shows a preview."""
-    try:
-        book_data['price'] = float(message.text)
-        preview_message = f"""
-        *Book Details Preview:*
-
-        **Title:** **{book_data['title']}**
-        **Author / Publication:** **{book_data['author']}**
-        **Category:** **{book_data['category']}**
-        """
-
-        optional_fields = ['institution_name', 'exam_name', 'location', 'other_details']  # Add 'other_details'
-        for field in optional_fields:
-            if field in book_data:
-                preview_message += f"**{field.title().replace('_', ' ')}:** **{book_data[field]}**\n"
-
-        preview_message += f"""
-        **Condition:** **{book_data['condition']}**
-        **Price:** **₹{book_data['price']}**
-        """
-
-        markup = ReplyKeyboardMarkup(one_time_keyboard=True, row_width=2)
-        markup.add(KeyboardButton('Confirm'), KeyboardButton('Cancel'))
-        bot.send_message(message.chat.id, preview_message, parse_mode='Markdown', reply_markup=markup)
-        bot.register_next_step_handler(message, process_confirmation)
-    except ValueError:
-        bot.send_message(message.chat.id, "Invalid price. Please enter only numbers.")
-        bot.register_next_step_handler(message, process_price)
-
-
-# --- Confirmation ---
-def process_confirmation(message):
-    """Handles the confirmation and forwards the message."""
-    if message.text == 'Confirm':
-        TARGET_CHAT_ID = '@YOUR_TARGET_CHANNEL_USERNAME'  # Replace with your actual chat ID
-        try:
-            book_info_message = f"""
-            ****
-                **Title:** **{book_data['title']}**
-                **Author:** **{book_data['author']}**
-                **Category:** **#{book_data['category']}**
-                """
-
-            optional_fields = ['institution_name', 'exam_name',  'other_details', 'location']  # Add 'other_details'
-            for field in optional_fields:
-                if field in book_data:
-                    book_info_message += f"**{field.title().replace('_', ' ')}:** **#{book_data[field].replace(' ', '_')}**\n" # Replace spaces for hashtags
-
-            book_info_message += f"""
-                **Condition:** **{book_data['condition']}**
-                **Price:** **₹{book_data['price']}**
-                **Seller:** **@{book_data['seller_username']}**
-            """
-
-            bot.send_photo(TARGET_CHAT_ID, book_data['cover_photo'],
-                             caption=book_info_message, parse_mode='Markdown')
-
-            book_data.clear()
-            bot.send_message(message.chat.id, "🎉 Book details submitted successfully! 🎉")
-            bot.send_message(message.chat.id, "🎉 We will soon list your book on @Miblio")
-            bot.send_message(message.chat.id, "Do you want to add another book? /start",
-                             reply_markup=ReplyKeyboardRemove())
-
-        except Exception as e:
-            print(f"Error forwarding message: {e}")
-            bot.send_message(message.chat.id, "An error occurred while forwarding the message.")
-
-    elif message.text == 'Cancel':
-        bot.send_message(message.chat.id, "Submission canceled. You can start again with /start",
-                         reply_markup=ReplyKeyboardRemove())
-        book_data.clear()
-    else:
-        bot.send_message(message.chat.id, "Invalid input. Please use the buttons.")
-
-
-# Start polling for updates
-if __name__ == '__main__':
-    bot.infinity_polling()
+    bot.send_message(message.chat.id, "Enter the selling price (in
