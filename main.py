@@ -2,6 +2,9 @@ import telebot
 from telebot import types
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 
+from keep_alive import keep_alive
+keep_alive()
+
 # Bot Token (Replace with your actual token)
 BOT_TOKEN = 'YOUR_BOT_TOKEN'  # Replace with your actual bot token
 
