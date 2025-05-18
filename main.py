@@ -4,6 +4,8 @@ from telebot.types import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemo
 import time
 import os
 import sys
+from keep_alive import keep_alive
+keep_alive()
 
 # Load Bot Token from environment variable
 BOT_TOKEN = os.environ.get('BOT_TOKEN')
@@ -243,7 +245,7 @@ def process_confirmation(message):
 if __name__ == '__main__':
     while True:
         try:
-            bot.polling(none_stop=True, timeout=30)
+            bot.polling(none_stop=True, timeout=0)
         except Exception as e:
             print(f"Polling error: {e}")
-            time.sleep(15)  # Wait for a bit before retrying
+            time.sleep(0)  # Wait for a bit before retrying
